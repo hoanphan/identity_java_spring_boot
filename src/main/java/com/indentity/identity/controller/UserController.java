@@ -1,10 +1,10 @@
 package com.indentity.identity.controller;
 
-import com.indentity.identity.dto.request.UserCreationRequest;
+import com.indentity.identity.dto.request.ApiResponse;import com.indentity.identity.dto.request.UserCreationRequest;
 import com.indentity.identity.dto.request.UserUpdateRequest;
 import com.indentity.identity.entity.User;
 import com.indentity.identity.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping()
-    User createUser(@RequestBody UserCreationRequest request) {
+    ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request) {
         return userService.createUser(request);
     }
 

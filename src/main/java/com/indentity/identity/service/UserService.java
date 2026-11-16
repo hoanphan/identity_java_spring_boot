@@ -1,6 +1,6 @@
 package com.indentity.identity.service;
 
-import com.indentity.identity.dto.request.UserCreationRequest;
+import com.indentity.identity.dto.request.ApiResponse;import com.indentity.identity.dto.request.UserCreationRequest;
 import com.indentity.identity.dto.request.UserUpdateRequest;
 import com.indentity.identity.entity.User;
 import com.indentity.identity.repository.UserRepository;
@@ -14,7 +14,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User createUser(UserCreationRequest request) {
+    public ApiResponse<User> createUser(UserCreationRequest request) {
         if(userRepository.existsByUsername(request.getUsername()))
             throw new RuntimeException("Exits user name");
 
@@ -24,8 +24,10 @@ public class UserService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setPassword(request.getPassword());
-
-       return userRepository.save(user);
+        ApiResponse<User> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(1000);
+        apiResponse.setResult(userRepository.save(user));
+       return apiResponse;
     }
 
     public List<User> getUsers() {
