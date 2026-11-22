@@ -4,6 +4,7 @@ import com.indentity.identity.dto.request.AuthenticationRequest;
 import com.indentity.identity.dto.request.IntrospectTokenRequest;
 import com.indentity.identity.dto.response.AuthenticationResponse;
 import com.indentity.identity.dto.response.IntrospectResponseResponse;
+import com.indentity.identity.entity.User;
 import com.indentity.identity.exception.AppException;
 import com.indentity.identity.exception.ErrorCode;
 import com.indentity.identity.repository.UserRepository;
@@ -22,11 +23,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 @Slf4j
 @Service
@@ -45,8 +48,8 @@ public class AuthenticationService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
         if (!authenticated)
-            throw  new AppException(ErrorCode.UNAUTHENTICATED);
-        var token = generateToken(authenticationRequest.getUsername());
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        var token = generateToken(user);
         return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
 
@@ -59,10 +62,11 @@ public class AuthenticationService {
 
         return IntrospectResponseResponse.builder().isValid(verified && expiredTime.after(new Date())).build();
     }
-    private String generateToken(String userName) {
+
+    private String generateToken(User user) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(userName)
+                .subject(user.getUsername())
                 .issuer("dev.identity.com")
                 .issueTime(new Date())
                 .expirationTime(
@@ -70,6 +74,7 @@ public class AuthenticationService {
                 ))
                 .claim("custom1", "value1")
                 .claim("custom2", "value2")
+                .claim("scope", buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -81,5 +86,14 @@ public class AuthenticationService {
             log.error("can not create");
             throw new RuntimeException(e);
         }
+    }
+
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(stringJoiner::add);
+        }
+
+        return  stringJoiner.toString();
     }
 }

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
+import java.time.LocalDate;import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -27,4 +27,5 @@ public class User {
     String firstName;
     String lastName;
     LocalDate dob;
+    Set<String> roles;
 }
