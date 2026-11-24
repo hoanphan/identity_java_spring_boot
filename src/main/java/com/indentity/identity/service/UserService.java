@@ -10,7 +10,7 @@ import com.indentity.identity.exception.ErrorCode;
 import com.indentity.identity.mapper.UserMapper;import com.indentity.identity.repository.UserRepository;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +43,7 @@ public class UserService {
        return apiResponse;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<UserResponse>> getUsers() {
        return ApiResponse.<List<UserResponse>>builder().result(
                userRepository.findAll().stream().map(user -> userMapper.toUserResponse(user)

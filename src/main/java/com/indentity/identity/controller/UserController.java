@@ -42,7 +42,6 @@ public class UserController {
 
     @GetMapping("/{userId}")
     ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId) {
-
         return userService.getUser(userId);
     }
 

@@ -4,6 +4,9 @@ server:
     context-path: /identity
 
 spring:
+  redis:
+    host: localhost
+    port: 6379
   application:
     name: identity
   datasource:

@@ -21,7 +21,10 @@ import javax.crypto.spec.SecretKeySpec;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/users", "/authentication/token", "/authentication/introspect"};
+    private final String[] PUBLIC_ENDPOINTS = {"/users",
+            "/authentication/token",
+            "/authentication/introspect",
+    };
 
     @Value("${jwt.signerKey}")
     private String signerKey;
@@ -29,6 +32,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                .permitAll()
+                .requestMatchers("/api/v1/cache-demo/products", "/api/v1/cache-demo/products/**")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/users")
                 .hasRole(Role.ADMIN.name())
